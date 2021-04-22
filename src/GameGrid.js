@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import Block from "./Block";
 
-//make grid an array of objects storing that block "coordinated" and its value
+//make grid an array of objects storing that block "coordinated" and its value (test from github)
 
 const GameGrid = ({ width, height }) => {
 	const [grid, setGrid] = useState([[0]]);
