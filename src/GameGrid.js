@@ -7,10 +7,9 @@ const GameGrid = ({ width, height, refresh }) => {
 	const [grid, setGrid] = useState([[{ val: 0, x: 0, y: 0 }]]);
 	const [run, setRun] = useState(false);
 
-	// set up grid for initial grid
-	useEffect(() => {
+	// function that creates an empty grid
+	const emptyGrid = () => {
 		const tempGrid = [];
-
 		for (let i = 0; i < height; i++) {
 			const tempRow = [];
 			for (let j = 0; j < width; j++) {
@@ -23,9 +22,14 @@ const GameGrid = ({ width, height, refresh }) => {
 			}
 			tempGrid.push(tempRow);
 		}
+		return tempGrid;
+	};
 
+	// set up grid for initial grid
+	useEffect(() => {
+		const tempGrid = emptyGrid();
 		setGrid(tempGrid);
-	}, [height, width, setGrid]);
+	}, []);
 
 	//handle iterations once started
 	useEffect(() => {
@@ -96,6 +100,33 @@ const GameGrid = ({ width, height, refresh }) => {
 		setTimeout(() => setGrid(copyGrid), refresh);
 	}, [grid, height, refresh, run, width]);
 
+	//function to create random grid
+	const randomizeGrid = () => {
+		if (run) return;
+
+		const tempGrid = [];
+		for (let i = 0; i < height; i++) {
+			const tempRow = [];
+			for (let j = 0; j < width; j++) {
+				tempRow.push({
+					val: Math.round(Math.random()),
+					x: j,
+					y: i,
+				});
+			}
+			tempGrid.push(tempRow);
+		}
+		setGrid(tempGrid);
+	};
+
+	// function to empty grid
+	const resetGrid = () => {
+		if (run) return;
+
+		const tempGrid = emptyGrid();
+		setGrid(tempGrid);
+	};
+
 	// create long array for formatting with css
 	let longGrid = [];
 	grid.forEach((row) => {
@@ -136,9 +167,17 @@ const GameGrid = ({ width, height, refresh }) => {
 				gridTemplateColumns: "1fr 5fr 1fr",
 			}}
 		>
-			<div className="controls">
+			<div
+				className="controls"
+				style={{
+					display: "flex",
+					flexDirection: "column",
+				}}
+			>
 				<Button onClick={() => setRun(true)} text="Start" />
 				<Button onClick={() => setRun(false)} text="Stop" />
+				<Button onClick={resetGrid} text="Reset" />
+				<Button onClick={randomizeGrid} text="Random" />
 			</div>
 			<div
 				className="GameGrid"
