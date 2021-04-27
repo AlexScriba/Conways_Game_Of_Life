@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import Block from "./Block";
+import Button from "./Button";
 
 const GameGrid = ({ width, height, refresh }) => {
 	const [grid, setGrid] = useState([[{ val: 0, x: 0, y: 0 }]]);
@@ -136,8 +137,8 @@ const GameGrid = ({ width, height, refresh }) => {
 			}}
 		>
 			<div className="controls">
-				<button onClick={() => setRun(true)}>Start</button>
-				<button onClick={() => setRun(false)}>Stop</button>
+				<Button onClick={() => setRun(true)} text="Start" />
+				<Button onClick={() => setRun(false)} text="Stop" />
 			</div>
 			<div
 				className="GameGrid"

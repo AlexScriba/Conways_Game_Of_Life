@@ -21,7 +21,7 @@ const App = () => {
 				alignItems: "center",
 			}}
 		>
-			<GameGrid height={20} width={25} refresh={1000} />
+			<GameGrid height={30} width={35} refresh={100} />
 		</div>
 	);
 };
