@@ -2,19 +2,23 @@ import React, { useEffect, useState } from "react";
 
 import Block from "./Block";
 
-//make grid an array of objects storing that block "coordinated" and its value (test from github)
+const GameGrid = ({ width, height, refresh }) => {
+	const [grid, setGrid] = useState([[{ val: 0, x: 0, y: 0 }]]);
+	const [run, setRun] = useState(false);
 
-const GameGrid = ({ width, height }) => {
-	const [grid, setGrid] = useState([[0]]);
-	console.log(grid.length);
-
+	// set up grid for initial grid
 	useEffect(() => {
 		const tempGrid = [];
 
 		for (let i = 0; i < height; i++) {
 			const tempRow = [];
 			for (let j = 0; j < width; j++) {
-				tempRow.push(0);
+				const node = {
+					val: 0,
+					x: j,
+					y: i,
+				};
+				tempRow.push(node);
 			}
 			tempGrid.push(tempRow);
 		}
@@ -22,33 +26,129 @@ const GameGrid = ({ width, height }) => {
 		setGrid(tempGrid);
 	}, [height, width, setGrid]);
 
+	//handle iterations once started
+	useEffect(() => {
+		if (!run) return;
+
+		const copyGrid = [];
+
+		for (let i = 0; i < height; i++) {
+			const copyRow = [];
+
+			for (let j = 0; j < width; j++) {
+				let neighbours = 0;
+
+				const im = i - 1,
+					ip = i + 1,
+					jm = j - 1,
+					jp = j + 1;
+
+				if (im >= 0 && grid[im][j].val === 1) {
+					neighbours++;
+				}
+
+				if (ip < height && grid[ip][j].val === 1) {
+					neighbours++;
+				}
+
+				if (jm >= 0 && grid[i][jm].val === 1) {
+					neighbours++;
+				}
+
+				if (jp < width && grid[i][jp].val === 1) {
+					neighbours++;
+				}
+
+				if (im >= 0 && jm >= 0 && grid[im][jm].val === 1) {
+					neighbours++;
+				}
+
+				if (im >= 0 && jp < width && grid[im][jp].val === 1) {
+					neighbours++;
+				}
+
+				if (ip < height && jp < width && grid[ip][jp].val === 1) {
+					neighbours++;
+				}
+
+				if (ip < height && jm >= 0 && grid[ip][jm].val === 1) {
+					neighbours++;
+				}
+
+				const block = grid[i][j];
+				let val = block.val;
+
+				if (val === 1) {
+					if (neighbours < 2 || neighbours >= 4) {
+						val = 0;
+					}
+				} else {
+					if (neighbours === 3) {
+						val = 1;
+					}
+				}
+
+				copyRow.push({ x: j, y: i, val });
+			}
+			copyGrid.push(copyRow);
+		}
+		setTimeout(() => setGrid(copyGrid), refresh);
+	}, [grid, height, refresh, run, width]);
+
+	// create long array for formatting with css
 	let longGrid = [];
 	grid.forEach((row) => {
 		longGrid = [...longGrid, ...row];
 	});
-	console.log(longGrid);
-	console.log(longGrid.length);
 
+	// method to update grid in blocks
+	const updateGrid = (x, y, val) => {
+		if (run) return;
+
+		const copyGrid = [];
+		for (let i = 0; i < height; i++) {
+			const copyRow = [...grid[i]];
+			copyGrid.push(copyRow);
+		}
+		copyGrid[y][x] = { x, y, val };
+		setGrid(copyGrid);
+	};
+
+	// render blocks with key
 	let key = 0;
-	const renderedGrid = longGrid.map((val) => {
-		return <Block key={key++} val={val} />;
+	const renderedGrid = longGrid.map((block) => {
+		return <Block key={key++} block={block} updateGrid={updateGrid} />;
 	});
 
+	// setup formatting string for css style for grid
 	let rowString = "";
 	for (let i = 0; i < width; i++) {
 		rowString += "1fr ";
 	}
 
+	// jsx
 	return (
 		<div
-			className="GameGrid"
+			className="page"
 			style={{
 				display: "grid",
-				gridGap: "2px",
-				gridTemplateColumns: rowString,
+				gridTemplateColumns: "1fr 5fr 1fr",
 			}}
 		>
-			{renderedGrid}
+			<div className="controls">
+				<button onClick={() => setRun(true)}>Start</button>
+				<button onClick={() => setRun(false)}>Stop</button>
+			</div>
+			<div
+				className="GameGrid"
+				style={{
+					display: "grid",
+					gridGap: "2px",
+					gridTemplateColumns: rowString,
+				}}
+			>
+				{renderedGrid}
+			</div>
 		</div>
 	);
 };
